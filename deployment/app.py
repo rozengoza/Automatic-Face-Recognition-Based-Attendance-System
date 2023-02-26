@@ -14,6 +14,7 @@ import pandas as pd
 from sklearn.preprocessing import Normalizer
 import json
 
+
 UPLOAD_FOLDER = './uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
@@ -63,10 +64,13 @@ def process_image(image_path):
 
 def get_face_encodings(images):
     print("loading models....")
+    #from keras_facenet import FaceNet
+
+    #model = FaceNet()
     model = load_model(
         maindir+"\\Notebook_Scripts_Data\\model\\facenet_keras.h5")
     model_svc = pickle.load(
-        open(maindir+'\\Notebook_Scripts_Data\\model\\20220223-210250_svc.pk', 'rb'))
+        open(maindir+'\\Notebook_Scripts_Data\\model\\20230226-220144_svc.pk', 'rb'))
     result_final=[]
     pred_final=[]
     for image in range(images):
@@ -126,9 +130,12 @@ def Index():
         username=username.upper()
         password = hashlib.sha256(password.encode()).hexdigest()
         account = pd.read_csv(maindir+"\\Notebook_Scripts_Data\\accounts.csv", index_col=0).T
-        if username in account.columns:
+        stored_password = account[username]['password']
+        if username in account.columns and password == stored_password:
             # fetch data
             account=account[username].to_dict()
+            
+
             # Create session data, we can access this data in other routes
             # session.permanent = True
             session['loggedin'] = True
@@ -252,7 +259,7 @@ def TakeAttendance():
                 return render_template('TakeAttendance.html', context={}, len=0,login=session['username'])
     return redirect(url_for('Index'))
 
-global capture
+global capconbdture
 capture = 0
 
 
@@ -273,10 +280,11 @@ def CameraAttendance():
 
 def live_video():
     global capture
-    cascPath = "./haarcascade_frontalface_default.xml"
+    cascPath = "C:/Users/rozen/Desktop/MajorProjectFinalPrasthaa/Pratistha/Automated-Face-Recognition-Based-Attendance-System/haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
     camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     while True:
+        
         success, frame = camera.read()  # read the camera frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(
@@ -333,7 +341,7 @@ def AttendanceDetails():
 
 def formatter(data_required):
     attendance_data = json.load(open(maindir+"\\Notebook_Scripts_Data\\data.json"))
-    if data_required[0:3]=='KCE':
+    if data_required[0:3]=='NCE':
         data=[['Date','Status']]
         for value in attendance_data['attendance'][subject_selected_detail]:
             if (data_required in value['absent_list']):

@@ -7,7 +7,7 @@
 </div>
 <div class="centerd">
     <div class="centerdd">
-        <img src={{user_data['Image']}} class="kce" onerror="this.src='/static/img/img_avatar.png'">
+        <img src={{user_data['Image']}} class="nce" onerror="this.src='/static/img/img_avatar.png'">
     </div>
     <div class="name">
         <h3 class="name-display">{{user_data['Full Name']}}</h3>
@@ -17,9 +17,9 @@
     <p class="info">{{user_data['Semester']}}</p>
 </div>
 <div class="general-info">
-    <div class="card shadow-sm">
+    <div class="card-shadow-sm">
         <div class="card-header bg-transparent border-0">
-            <h3 class="mb-0 general">General Information</h3>
+            <h3 class="mb-0-general">General Information</h3>
         </div>
         <div class="card-body pt-0">
             <table class="table table-bordered">
@@ -33,21 +33,26 @@
                     <td width="2%">:</td>
                     <td>{{user_data['Gmail']}}</td>
                 </tr>
-                <tr>
+                {% if user_data['show_additional_details'] == 'Y' %}
+                <tr> 
                     <th width="30%">DOB</th>
                     <td width="2%">:</td>
                     <td>{{user_data['DOB']}}</td>
                 </tr>
+                {% endif %}
                 <tr>
                     <th width="30%">CONTACT NO.</th>
                     <td width="2%">:</td>
-                    <td>{{user_data['Contact no.']}}</td>
+                    <td>{{user_data['Contact no.'] | int}}</td>
                 </tr>
+
+                {% if user_data['show_additional_details'] == 'Y' %}
                 <tr>
                     <th width="30%">BATCH:</th>
                     <td width="2%">:</td>
                     <td>{{user_data['Batch']}}</td>
                 </tr>
+                {% endif %}
             </table>
         </div>
     </div>
