@@ -5,9 +5,24 @@
     <button type="button" class="btn btn-danger"><a href="{{url_for('logout')}}"
             style="text-decoration : none; color : #000000;">Log Out</a></button>
 </div>
+    {% if user_data['show_additional_details'] == 'N' %}
+    <div class="photo">
+      <img class="photo" src="\static\img\national.png">
+    </div>
+    <style>
+      body {
+        background-image: url("/static/img/national.png");
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+      }
+      </style>
+    </head>
+{% endif %}
 <div class="centerd">
     <div class="centerdd">
-        <img src={{user_data['Image']}} class="nce" onerror="this.src='/static/img/img_avatar.png'">
+        {% set img_path = '/profile/' + user_data['Image'] + '.jpg' %}
+        <img src="{{ url_for('static', filename=img_path) }}" class="nce" onerror="this.src='/static/img/img_avatar.png'">
     </div>
     <div class="name">
         <h3 class="name-display">{{user_data['Full Name']}}</h3>

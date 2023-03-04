@@ -70,7 +70,7 @@ def get_face_encodings(images):
     model = load_model(
         maindir+"\\Notebook_Scripts_Data\\model\\facenet_keras.h5")
     model_svc = pickle.load(
-        open(maindir+'\\Notebook_Scripts_Data\\model\\20230226-220144_svc.pk', 'rb'))
+        open(maindir+'\\Notebook_Scripts_Data\\model\\20230302-010530_svc.pk', 'rb'))
     result_final=[]
     pred_final=[]
     for image in range(images):
