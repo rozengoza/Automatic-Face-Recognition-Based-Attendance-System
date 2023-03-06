@@ -1,11 +1,24 @@
 {% extends "layout.html" %}
 {% block title %}Image Detection{% endblock %}
 {% block content %}
+<head>
+  <div class="photo">
+    <img class="photo" src="\static\img\facedetect.png">
+  </div>
+  <style>
+    body {
+      background-image: url("/static/img/facedetect.png");
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    </style>
+  </head>
 <div class="container">
   <div class="upload">
-    <h3 class="fontt">DETECT FACES</h3>
+    <h3 class="fontt" style="color:white">DETECT FACES</h3>
   </div>
-  <div class="upload">
+  <div class="upload" style="color: #2a2a72">
     <p>Please upload photo you want to detect faces.</p>
   </div>
   <div class="upload">
@@ -13,7 +26,7 @@
       <button type="button" class="btn btn-outline-primary"><input type="file" name="file"></button>
       <input type="submit" value="Upload" class="btn btn-primary">
       <div class="upload">
-        <h4 class="font">{{context.message}}</h4>
+        <h4 class="font" style="color: white">{{context.message}}</h4>
       </div>
 
     </form>

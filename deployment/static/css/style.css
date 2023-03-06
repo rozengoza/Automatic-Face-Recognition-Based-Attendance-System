@@ -11,6 +11,7 @@
   background: white;
   position: relative;
   margin: 2% auto;
+  margin-top:65px;
   padding: 5px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
@@ -392,7 +393,7 @@ label > input[type="checkbox"]:checked + * {
 }
 
 .subbutton{
-  width: 200px;
+  width: fit-content;
   height: 80px;
   margin-right: 20px;
   font-family: 'Lato', sans-serif;
@@ -513,23 +514,37 @@ label > input[type="checkbox"]:checked + * {
   height: fit-content;
 }
 
+
 .upload-font1{
+  display:inline-block;
+  border: 1px solid #2a2a72;
+  border-radius: 5px;
+  margin-left:27%;
+  margin-top:5px;
   font-size: 40px;
-  font-weight: bold;
+  font-weight:bold;
   font-family: 'Lato',monospace;
   text-align: center;
-  padding-top: 40px;
-  color:black;
+  color:#2a2a72;
+  padding-left:4px;
+  padding-right:4px;
+  background-color: white;
 }
 
 .upload-font2{
+  display:inline-block;
+  border: 1px solid #2a2a72;
+  border-radius: 5px;
+  margin-left:37%;
   font-size: 30px;
   font-weight: bold;
   font-family: 'Lato', monospace;
   text-align: center;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  color:black;
+  margin-top:2px;
+  color:#2a2a72;
+  padding-left:3px;
+  padding-right:3px;
+  background-color: white;
 }
 
 .card-shadow-sm{
@@ -550,5 +565,30 @@ label > input[type="checkbox"]:checked + * {
 
 th,td{
   border-bottom: 1px solid black;
+}
+
+
+.upload p {
+  display: inline-block; /* Make the element inline-block */
+  border: 1px solid #2a2a72; /* Add a border */
+  border-radius: 5px; /* Add rounded corners */
+  padding-top: 0px;
+  padding-bottom:0px;
+  font-weight: bold;
+  font-size: 16px; /* Set the font size */
+  margin: 0; /* Remove the margin */
+  margin-bottom:20px;
+}
+
+.upload h3 {
+  display: inline-block;
+  border: 1px solid #ccc;
+  padding:10 px;
+  margin-top:5px;
+  font-size:24px;
+  background-color:#2a2a72;
+  padding-left:5px;
+  padding-right:5px;
+  border-radius:5px;
 }
 

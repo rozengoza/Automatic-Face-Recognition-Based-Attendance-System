@@ -1,11 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Homepage{% endblock %}
 {% block content %}
-<div class="topcorner">
-    <button type="button" class="btn btn-danger"><a href="{{url_for('logout')}}"
-            style="text-decoration : none; color : #000000;">Log Out</a></button>
-</div>
-    {% if user_data['show_additional_details'] == 'N' %}
+<head>
     <div class="photo">
       <img class="photo" src="\static\img\national.png">
     </div>
@@ -18,7 +14,13 @@
       }
       </style>
     </head>
-{% endif %}
+<div class="topcorner">
+    <button type="button" class="btn btn-danger"><a href="{{url_for('logout')}}"
+            style="text-decoration : none; color : #000000;">Log Out</a></button>
+</div>
+    
+    
+
 <div class="centerd">
     <div class="centerdd">
         {% set img_path = '/profile/' + user_data['Image'] + '.jpg' %}
