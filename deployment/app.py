@@ -280,7 +280,7 @@ def CameraAttendance():
 
 def live_video():
     global capture
-    cascPath = "C:/Users/rozen/Desktop/MajorProjectFinalPrasthaa/Pratistha/Automated-Face-Recognition-Based-Attendance-System/haarcascade_frontalface_default.xml"
+    cascPath = "C:/Users/Dell/Desktop/attendance-feb 12/PattuAttendance/haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
     camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
     while True:

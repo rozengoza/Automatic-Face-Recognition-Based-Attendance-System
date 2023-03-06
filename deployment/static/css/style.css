@@ -11,7 +11,7 @@
   background: white;
   position: relative;
   margin: 2% auto;
-  margin-top:65px;
+  margin-top:30px;
   padding: 5px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   border-radius: 10px;
@@ -528,7 +528,7 @@ label > input[type="checkbox"]:checked + * {
   color:#2a2a72;
   padding-left:4px;
   padding-right:4px;
-  background-color: white;
+  background:rgba(255, 255, 255, 0.5);
 }
 
 .upload-font2{
@@ -544,7 +544,7 @@ label > input[type="checkbox"]:checked + * {
   color:#2a2a72;
   padding-left:3px;
   padding-right:3px;
-  background-color: white;
+  background:rgba(255, 255, 255, 0.5);
 }
 
 .card-shadow-sm{
@@ -578,6 +578,7 @@ th,td{
   font-size: 16px; /* Set the font size */
   margin: 0; /* Remove the margin */
   margin-bottom:20px;
+  background:rgba(255, 255, 255, 0.5);
 }
 
 .upload h3 {
