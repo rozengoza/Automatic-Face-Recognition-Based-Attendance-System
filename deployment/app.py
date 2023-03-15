@@ -458,7 +458,10 @@ def AttendanceDetails():
                         present = subjects[subject]['Present']
                         total = subjects[subject]['total']
                         absent = total - present
-                        present_percentage = round((present/total)*100, 2)
+                        if total==0:
+                            present_percentage=0
+                        else:
+                            present_percentage = round((present/total)*100, 2)
                         subject_attendance[subject]['CRN'].append(crn)
                         subject_attendance[subject]['Total'].append(subjects[subject]['total'])
                         subject_attendance[subject]['Present'].append(subjects[subject]['Present'])
