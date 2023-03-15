@@ -70,7 +70,7 @@ def get_face_encodings(images):
     model = load_model(
         maindir+"\\Notebook_Scripts_Data\\model\\facenet_keras.h5")
     model_svc = pickle.load(
-        open(maindir+'\\Notebook_Scripts_Data\\model\\20230302-010530_svc.pk', 'rb'))
+        open(maindir+'\\Notebook_Scripts_Data\\model\\20230315-111117_svc.pk', 'rb'))
     result_final=[]
     pred_final=[]
     for image in range(images):
@@ -243,11 +243,11 @@ def TakeAttendance():
         if session['access']!='S':
             if request.method == 'POST':
                 file = request.files['file']
-                if capture_bool:
-                    print("Capture File have been accepted.....")
-                    context,info,data_list,title,result,total,present_no,absent_no=attendance_processor(cap_path)
-                    return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,login=session['username'])
-                elif file and allowed_file(file.filename):
+                #if capture_bool:
+                    #print("Capture File have been accepted.....")
+                    #context,info,data_list,title,result,total,present_no,absent_no=attendance_processor(cap_path)
+                    # return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,login=session['username'])
+                if file and allowed_file(file.filename):
                     filename = secure_filename("image_"+str(int(time.time()))+".jpg")
                     file.save(os.path.join(basedir, app.config['UPLOAD_FOLDER'], filename))
                     filename_full = basedir + "\\uploads\\" + filename
@@ -270,6 +270,8 @@ def CameraAttendance():
         if session['access']!='S':
             global capture_bool
             capture_bool = False
+            
+
             if request.method == 'POST':
                 global capture
                 capture = 1
@@ -278,13 +280,18 @@ def CameraAttendance():
             return render_template('CameraAttendance.html')
     return redirect(url_for('Index'))
 
+face_detected = False  # initialize the variable outside the live_video function
+
+
+
 def live_video():
     global capture
+    global face_detected  # add global keyword to access the variable
     cascPath = "C:/Users/Dell/Desktop/attendance-feb 12/PattuAttendance/haarcascade_frontalface_default.xml"
     faceCascade = cv2.CascadeClassifier(cascPath)
-    camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+    camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    capture= 0
     while True:
-        
         success, frame = camera.read()  # read the camera frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(
@@ -295,17 +302,18 @@ def live_video():
         )
         # Draw a rectangle around the faces
         for (x, y, w, h) in faces:
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            face_detected = True  # set the variable to True if at least one face is detected
         if not success:
             break
         else:
-            if(capture):
+            if len(faces) >= 1 and capture:
                 capture = 0
                 global cap_path
-                cap_path=basedir+"\\capture\\"+"capture_"+str(int(time.time()))+".jpg"
+                cap_path = basedir + "\\capture\\" + "capture_" + str(int(time.time())) + ".jpg"
                 cv2.imwrite(cap_path, frame)
                 global capture_bool
-                capture_bool = True                
+                capture_bool = True
             try:
                 ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
@@ -316,12 +324,74 @@ def live_video():
     camera.release
     cv2.destroyAllWindows()
 
+from flask import render_template
+
+@app.route('/')
+def index():
+    face_detected = False  # initialize the variable
+    return render_template('index.html', face_detected=face_detected)
+
+
+
+# @app.route('/capture_feed')
+# def capture_feed():
+#     if 'loggedin' in session:
+#         if face_detected:  # enable the capture button only if at least one face is detected
+#             return Response(live_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
+#         else:
+#             return "No face detected"
+#     return redirect(url_for('Index'))
 
 @app.route('/capture_feed')
 def capture_feed():
     if 'loggedin' in session:
         return Response(live_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
     return redirect(url_for('Index'))
+
+# def live_video():
+#     global capture
+#     cascPath = "C:/Users/Dell/Desktop/attendance-feb 12/PattuAttendance/haarcascade_frontalface_default.xml"
+#     faceCascade = cv2.CascadeClassifier(cascPath)
+#     camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+#     while True:
+#         success, frame = camera.read()  # read the camera frame
+#         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#         faces = faceCascade.detectMultiScale(
+#             gray,
+#             scaleFactor=1.1,
+#             minNeighbors=5,
+#             minSize=(30, 30)
+#         )
+#         # Draw a rectangle around the faces
+#         for (x, y, w, h) in faces:
+#             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+#         if not success:
+#             break
+#         else:
+#             if len(faces) >= 1 and capture:
+#                 capture = 0
+#                 global cap_path
+#                 cap_path = basedir + "\\capture\\" + "capture_" + str(int(time.time())) + ".jpg"
+#                 cv2.imwrite(cap_path, frame)
+#                 global capture_bool
+#                 capture_bool = True
+#             try:
+#                 ret, buffer = cv2.imencode('.jpg', frame)
+#                 frame = buffer.tobytes()
+#                 yield (b'--frame\r\n'
+#                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+#             except Exception as e:
+#                 pass
+#     camera.release
+#     cv2.destroyAllWindows()
+
+
+
+# @app.route('/capture_feed')
+# def capture_feed():
+#     if 'loggedin' in session:
+#         return Response(live_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
+#     return redirect(url_for('Index'))
 
 
 @app.route('/AttendanceDetails', methods=['GET', 'POST'])

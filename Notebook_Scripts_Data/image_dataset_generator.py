@@ -9,9 +9,9 @@ def manipulation(image_path):
     C_enhancer = ImageEnhance.Contrast(image)
     hoz_flip = image.transpose(Image.FLIP_LEFT_RIGHT)
     image_loc = image_path[:-4]
-    for i in range(16):
+    for i in range(4):
         if i > 0:
-            factor = i/8.0
+            factor = i/2.0
             im = B_enhancer.enhance(factor)
             im1 = C_enhancer.enhance(factor)
             rotate_image = image.rotate(5+i*2)
