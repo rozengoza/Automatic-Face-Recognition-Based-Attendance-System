@@ -593,3 +593,29 @@ th,td{
   border-radius:5px;
 }
 
+.displayTime{
+  margin-top:1px;
+}
+
+.videos {
+  position:absolute;
+  margin-top: 130px;
+  margin-left:115px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+}
+.videos iframe {
+  width: 100%;
+  height: 100%;
+}
+
+.capture-form {
+  position: absolute;
+  top: 93%;
+  left: 55%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+}

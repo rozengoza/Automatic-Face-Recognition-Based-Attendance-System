@@ -13,7 +13,9 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import Normalizer
 import json
-
+import pyexcel as pe
+import pyexcelerate as px
+from pyexcelerate import Workbook
 
 UPLOAD_FOLDER = './uploads/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
@@ -70,7 +72,7 @@ def get_face_encodings(images):
     model = load_model(
         maindir+"\\Notebook_Scripts_Data\\model\\facenet_keras.h5")
     model_svc = pickle.load(
-        open(maindir+'\\Notebook_Scripts_Data\\model\\20230302-010530_svc.pk', 'rb'))
+        open(maindir+'\\Notebook_Scripts_Data\\model\\20230315-111117_svc.pk', 'rb'))
     result_final=[]
     pred_final=[]
     for image in range(images):
@@ -186,23 +188,50 @@ def DetectFaces():
             return render_template('DetectFaces.html', context={}, len=0, zip=zip)
     return redirect(url_for('Index'))
 
+def get_initials(subject_selected):
+    initials = ''.join([word[0] for word in subject_selected.split()])
+    return initials
+
 def update_attendance(data):
     attendance_data = json.load(open(maindir+"\\Notebook_Scripts_Data\\data.json"))
     subject_selected=request.form["subject"]
     p_list=[]
     a_list=[]
-    for data in data:
-        if data[2]=='Present' :
-            p_list.append(data[0])
-            attendance_data['student'][data[0]][subject_selected]['Present']+=1
+    for row in data:
+        if row[2]=='Present' :
+            p_list.append(row[0])
+            attendance_data['student'][row[0]][subject_selected]['Present']+=1
         else:
-            a_list.append(data[0])
-        attendance_data['student'][data[0]][subject_selected]['total']+=1
+            a_list.append(row[0])
+        attendance_data['student'][row[0]][subject_selected]['total']+=1
     temp={'date':datetime.now().strftime("%Y/%m/%d %H:%M:%S"),"present_list":p_list,"absent_list":a_list}
     attendance_data['attendance'][subject_selected].append(temp)
     with open(maindir+"\\Notebook_Scripts_Data\\data.json","w" )as f:
         f.write(json.dumps(attendance_data))
-    return
+    # Write data to an Excel file
+    data_df = pd.DataFrame(data, columns=['CRN', 'Name', 'Status'])
+    
+
+    # Define the path to the ExcelSheets directory
+    excelsheets_dir = os.path.join(maindir, "ExcelSheets","DailyAttendance")
+
+    # Define the path to the directory pointed by subject_selected
+    subject_dir = os.path.join(excelsheets_dir, subject_selected)
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(subject_dir):
+        os.makedirs(subject_dir)
+
+    # Define the filename for the Excel file
+    initials = get_initials(subject_selected)
+    filename =datetime.now().strftime("%Y.%m.%d.%H.%M.%S.")+" "+ initials+" " + ".xlsx"
+
+    # Save the DataFrame to the Excel file
+    data_df.to_excel(os.path.join(subject_dir, filename), index=False)
+
+    return 
+
+
 
 capture_bool = False
 
@@ -210,6 +239,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 def attendance_processor(filename_full):
+    start_time = time.time()  # record start time
     message = "Image accepted"
     info = face_detection(filename_full)
     result = get_face_encodings(len(info))
@@ -234,26 +264,33 @@ def attendance_processor(filename_full):
     absent_no = total - present_no
     print("updating attendance.....")
     update_attendance(data_list)
+    update_attendance(data_list)
+    elapsed_time = time.time() - start_time  # calculate elapsed time
+    elapsed_time_str = "{:.3f}".format(round(elapsed_time, 3))
+    print("Total Time to Generate Attendance:", elapsed_time,"seconds")  # print elapsed time
     context = {'message': message, 'image_info': info,'img_time': str(int(time.time()))}
-    return context,info,data_list,title,result,total,present_no,absent_no
+    return context,info,data_list,title,result,total,present_no,absent_no,elapsed_time_str
 
 @app.route('/TakeAttendance', methods=['GET', 'POST'])
 def TakeAttendance():
+    current_time = datetime.now().strftime('%H:%M:%S') #record current
+    print(current_time)
     if 'loggedin' in session:
         if session['access']!='S':
+        
             if request.method == 'POST':
                 file = request.files['file']
-                if capture_bool:
-                    print("Capture File have been accepted.....")
-                    context,info,data_list,title,result,total,present_no,absent_no=attendance_processor(cap_path)
-                    return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,login=session['username'])
-                elif file and allowed_file(file.filename):
+                # if capture_bool:
+                #     print("Capture File have been accepted.....")
+                #     context,info,data_list,title,result,total,present_no,absent_no=attendance_processor(cap_path)
+                #     return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,login=session['username'])
+                if file and allowed_file(file.filename):
                     filename = secure_filename("image_"+str(int(time.time()))+".jpg")
                     file.save(os.path.join(basedir, app.config['UPLOAD_FOLDER'], filename))
                     filename_full = basedir + "\\uploads\\" + filename
                     print("File have been accepted.....")
-                    context,info,data_list,title,result,total,present_no,absent_no=attendance_processor(filename_full)
-                    return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,login=session['username'])
+                    context,info,data_list,title,result,total,present_no,absent_no,elapsed_time_str=attendance_processor(filename_full)
+                    return render_template('TakeAttendance.html', context=context, len=len(info), tables=data_list, title=title, result=result, total=total, present=present_no, absent=absent_no,elapsedtime=elapsed_time_str,display_time=current_time,login=session['username'])
                 return redirect(url_for('TakeAttendance'))
             else:
                 return render_template('TakeAttendance.html', context={}, len=0,login=session['username'])
@@ -278,13 +315,75 @@ def CameraAttendance():
             return render_template('CameraAttendance.html')
     return redirect(url_for('Index'))
 
-def live_video():
-    global capture
-    cascPath = "C:/Users/Dell/Desktop/attendance-feb 12/PattuAttendance/haarcascade_frontalface_default.xml"
-    faceCascade = cv2.CascadeClassifier(cascPath)
-    camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
-    while True:
+# def live_video():
+#     global capture
+#     width = 1500
+#     height = 800
+#     # camera = cv2.VideoCapture(1)
+#     # camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+#     # camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+#     cascPath = "C:/Users/rozen/Desktop/MajorProjectFinalPrasthaa/Pratistha/Automated-Face-Recognition-Based-Attendance-System/haarcascade_frontalface_default.xml"
+#     faceCascade = cv2.CascadeClassifier(cascPath)
+#     camera = cv2.VideoCapture(0,cv2.CAP_DSHOW)
+#     camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+#     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+#     while True:
         
+#         success, frame = camera.read()  # read the camera frame
+#         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+#         faces = faceCascade.detectMultiScale(
+#             gray,
+#             scaleFactor=1.1,
+#             minNeighbors=5,
+#             minSize=(30, 30)
+#         )
+#         # Draw a rectangle around the faces
+#         for (x, y, w, h) in faces:
+#             cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+#         if not success:
+#             break
+#         else:
+#             if(capture):
+#                 capture = 0
+#                 global cap_path
+#                 cap_path=basedir+"\\capture\\"+"capture_"+str(int(time.time()))+".jpg"
+#                 cv2.imwrite(cap_path, frame)
+#                 global capture_bool
+#                 capture_bool = True                
+#             try:
+#                 ret, buffer = cv2.imencode('.jpg', frame)
+#                 frame = buffer.tobytes()
+#                 yield (b'--frame\r\n'
+#                        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')  # concat frame one by one and show result
+#             except Exception as e:
+#                 pass
+#     camera.release
+#     cv2.destroyAllWindows()
+
+## haarcascade, allow capture only if Face is detected 
+
+face_detected = False  # initialize the variable outside the live_video function
+
+
+
+def live_video():
+    global capture 
+    width = 1500
+    height = 800
+    # In order to capture using CCTV camera or USB camera
+    # camera = cv2.VideoCapture(1)
+    # camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    # camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    global face_detected  # add global keyword to access the variable
+    cascPath = "C:/Users/rozen/Desktop/MajorProjectFinalPrasthaa/Pratistha/Automated-Face-Recognition-Based-Attendance-System/haarcascade_frontalface_default.xml"
+    faceCascade = cv2.CascadeClassifier(cascPath)
+    camera = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    capture= 0
+    
+
+    while True:
         success, frame = camera.read()  # read the camera frame
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = faceCascade.detectMultiScale(
@@ -295,17 +394,18 @@ def live_video():
         )
         # Draw a rectangle around the faces
         for (x, y, w, h) in faces:
-            cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            face_detected = True  # set the variable to True if at least one face is detected
         if not success:
             break
         else:
-            if(capture):
+            if len(faces) >= 1 and capture:
                 capture = 0
                 global cap_path
-                cap_path=basedir+"\\capture\\"+"capture_"+str(int(time.time()))+".jpg"
+                cap_path = basedir + "\\capture\\" + "capture_" + str(int(time.time())) + ".jpg"
                 cv2.imwrite(cap_path, frame)
                 global capture_bool
-                capture_bool = True                
+                capture_bool = True
             try:
                 ret, buffer = cv2.imencode('.jpg', frame)
                 frame = buffer.tobytes()
@@ -315,6 +415,15 @@ def live_video():
                 pass
     camera.release
     cv2.destroyAllWindows()
+
+from flask import render_template
+
+@app.route('/')
+def index():
+    face_detected = False  # initialize the variable
+    return render_template('index.html', face_detected=face_detected)
+
+
 
 
 @app.route('/capture_feed')
@@ -329,11 +438,43 @@ def AttendanceDetails():
     if 'loggedin' in session:
         user_data = pd.read_csv(maindir+"\\Notebook_Scripts_Data\\studentdetails.csv", index_col=0).T.to_dict()
         attendance_data = json.load(open(maindir+"\\Notebook_Scripts_Data\\data.json"))
+        
         show = False
         if request.method == 'POST':
             global subject_selected_detail
             subject_selected_detail = request.form["subject"]
             show=True
+            if session['access']=='T':
+                
+                # Create a dictionary to store attendance data for each subject
+                subject_attendance = {}
+                # Assign the selected subject to subject
+                subject = subject_selected_detail
+                subject_attendance[subject] = {'CRN': [], 'Total': [], 'Present': [], 'Absent':[], 'PresentPercentage':[]}
+
+                # Loop through each student and update subject_attendance
+                for crn, subjects in attendance_data['student'].items():
+                    if subject in subjects:
+                        present = subjects[subject]['Present']
+                        total = subjects[subject]['total']
+                        absent = total - present
+                        present_percentage = round((present/total)*100, 2)
+                        subject_attendance[subject]['CRN'].append(crn)
+                        subject_attendance[subject]['Total'].append(subjects[subject]['total'])
+                        subject_attendance[subject]['Present'].append(subjects[subject]['Present'])
+                        subject_attendance[subject]['Absent'].append(absent)
+                        subject_attendance[subject]['PresentPercentage'].append(present_percentage)
+                
+
+
+                # Create a DataFrame for each subject's attendance data and save to Excel
+                excelsheets_dir = os.path.join(maindir, "ExcelSheets","TotalAttendanceInEachSubject")
+                # Define the path to the directory pointed by subject_selected
+                subject_dir = os.path.join(excelsheets_dir, subject_selected_detail)
+                df = pd.DataFrame(subject_attendance[subject])
+                filename = datetime.now().strftime("%Y.%m.%d.%H.%M.%S") + "_" + subject_selected_detail + ".xlsx"
+                df.to_excel(os.path.join(subject_dir, filename), index=False)
+
             return render_template('AttendanceDetails.html',attendance_data=attendance_data, s_access = session['access'], username = session['username'] , user_data = user_data ,subject_selected=subject_selected_detail,show=show,round=round)
         else:
             return render_template('AttendanceDetails.html',attendance_data=attendance_data, s_access = session['access'], username = session['username'] , user_data = user_data,show=show)
@@ -349,6 +490,7 @@ def formatter(data_required):
             else:
                 temp=[value['date'],'Present']
             data.append(temp)
+        
     else:
         data=[['Date','Status']]
         for value in attendance_data['attendance'][data_required]:

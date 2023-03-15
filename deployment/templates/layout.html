@@ -20,11 +20,16 @@
     <div class="container_our">
       <nav>
         <ul>
-          <li><a href="{{url_for('Index')}}">Home</a></li>
-          <li><a href="{{url_for('DetectFaces')}}">Detect Faces</a></li>
-          <li><a href="{{url_for('TakeAttendance')}}">Take Attendance</a></li>
-          <li><a href="{{url_for('CameraAttendance')}}">Camera Attendance</a></li>
-          <li><a href="{{url_for('AttendanceDetails')}}">Attendance Details</a></li>
+          {% if session['access'] == 'T' %}
+            <li><a href="{{url_for('Index')}}">Home</a></li>
+            <!-- <li><a href="{{url_for('DetectFaces')}}">Detect Faces</a></li> -->
+            <li><a href="{{url_for('TakeAttendance')}}">Take Attendance</a></li>
+            <li><a href="{{url_for('CameraAttendance')}}">Camera Attendance</a></li>
+            <li><a href="{{url_for('AttendanceDetails')}}">Attendance Details</a></li>
+          {% elif session['access'] == 'S' %}
+            <li><a href="{{url_for('Index')}}">Home</a></li>
+            <li><a href="{{url_for('AttendanceDetails')}}">Attendance Details</a></li>
+          {% endif %}
         </ul>
       </nav>
     </div>
@@ -33,5 +38,4 @@
 
   {% block content %}
   {% endblock %}
-
 </html>

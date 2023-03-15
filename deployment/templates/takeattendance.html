@@ -1,6 +1,7 @@
 {% extends "layout.html" %}
 {% block title %}Image Detection{% endblock %}
 {% block content %}
+
 <p class="hidden username">{{login}}</p>
 <div class="container sub" id="take_container">
   <div class="upload">
@@ -35,7 +36,6 @@
     </form>
   </div>
 </div>
-
 <div style="display: flex;">
   <div class="image-sec">
     <div class="row">
@@ -53,6 +53,7 @@
       </div>
 
       {% endfor %}
+      
     </div>
     {% if total != NULL %}
     <table class="table-content" style="width: 450px;">
@@ -63,6 +64,11 @@
       </tr>
     </table>
     {% endif%}
+    {% if elapsedtime %}
+    <div class="displayTime">
+      <h4 class="font" style="font-style:normal; font-size:18px; font-weight:lighter" >Total time taken to generate attendance: {{ elapsedtime}} seconds</h4>
+    </div>
+    {% endif %}
   </div>
   <div class="result">
     {% if tables != NULL %}
