@@ -599,8 +599,8 @@ th,td{
 
 .videos {
   position:absolute;
-  margin-top: 130px;
-  margin-left:115px;
+  margin-top: 8.1%;
+  margin-left:8%;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -619,3 +619,4 @@ th,td{
   transform: translate(-50%, -50%);
   width: 220px;
 }
+

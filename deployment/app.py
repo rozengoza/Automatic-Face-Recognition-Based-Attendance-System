@@ -474,8 +474,14 @@ def AttendanceDetails():
                 excelsheets_dir = os.path.join(maindir, "ExcelSheets","TotalAttendanceInEachSubject")
                 # Define the path to the directory pointed by subject_selected
                 subject_dir = os.path.join(excelsheets_dir, subject_selected_detail)
+
+                # Create the directory if it doesn't exist
+                if not os.path.exists(subject_dir):
+                    os.makedirs(subject_dir)
                 df = pd.DataFrame(subject_attendance[subject])
-                filename = datetime.now().strftime("%Y.%m.%d.%H.%M.%S") + "_" + subject_selected_detail + ".xlsx"
+                # Define the filename for the Excel file
+                initials = get_initials(subject_selected_detail)
+                filename = datetime.now().strftime("%Y.%m.%d.%H.%M.%S") + "_" + initials + ".xlsx"
                 df.to_excel(os.path.join(subject_dir, filename), index=False)
 
             return render_template('AttendanceDetails.html',attendance_data=attendance_data, s_access = session['access'], username = session['username'] , user_data = user_data ,subject_selected=subject_selected_detail,show=show,round=round)
