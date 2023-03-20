@@ -402,6 +402,10 @@ def live_video():
             if len(faces) >= 1 and capture:
                 capture = 0
                 global cap_path
+                dir_name="capture"
+                # Create the directory if it doesn't exist
+                if not os.path.exists(os.path.join(basedir, dir_name)):
+                    os.makedirs(os.path.join(basedir, dir_name))
                 cap_path = basedir + "\\capture\\" + "capture_" + str(int(time.time())) + ".jpg"
                 cv2.imwrite(cap_path, frame)
                 global capture_bool
